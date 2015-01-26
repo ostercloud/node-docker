@@ -16,5 +16,4 @@ RUN npm install newrelic
 npm install -g loadtest
 
 EXPOSE  8080
-CMD ["node", "/src/index.js"]
-CMD loadtest -c 10 -k -t 30 --rps 200 http://localhost:8080/
+CMD node /src/index.js; loadtest -c 10 -k -t 30 --rps 200 http://localhost:8080/
