@@ -13,7 +13,7 @@ RUN cd /src; npm install
 RUN npm install newrelic
 
 #install loadtesting stuff
-RUN npm install -g loadtest
+RUN npm install loadtest
 
 EXPOSE  8080
 CMD node /src/index.js; sleep 60; loadtest -c 10 -k -t 30 --rps 200 http://localhost:8080/
