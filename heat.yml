@@ -94,7 +94,7 @@ resources:
                         apt-get install docker.io git apache2-utils -y
                         git clone --recursive https://github.com/ostercloud/node-docker.git
                         cd node-docker; docker build -t newrelic-lab .
-                        docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newreic-lab
+                        docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newrelic-lab
                     params:
                         $NR_KEY: {get_param: new_relic_license_key}
     ssh_key:
