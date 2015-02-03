@@ -87,7 +87,7 @@ resources:
                         git clone --recursive https://github.com/ostercloud/node-docker.git
                         cd node-docker; docker build -t newrelic-lab .
                         docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newrelic-lab
-                        at -m now + 1 minute < bash ~/node-docker/loadtest.sh
+                        at -m now + 1 minute < /node-docker/loadtest.sh
                     params:
                         $NR_KEY: {get_param: new_relic_license_key}
 
