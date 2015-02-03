@@ -1,0 +1,96 @@
+parameter_groups:
+    -
+        parameters:
+            - image
+            - flavor
+        label: 'Server Settings'
+    -
+        parameters:
+            - new_relic_license_key
+        label: 'NewRelic Settings'
+    -
+        parameters:
+            - server_hostname
+        label: rax-dev-params
+heat_template_version: '2013-05-23'
+description: "This is a Heat template to deploy a single Linux server running Vesta Control\nPanel\n"
+parameters:
+    server_hostname:
+        default: newrelic-lab
+        label: 'Server Name'
+        type: string
+        description: 'Server Name'
+        constraints:
+            -
+                length:
+                    max: 64
+                    min: 1
+            -
+                allowed_pattern: '^[a-zA-Z][a-zA-Z0-9-]*$'
+                description: "Must begin with a letter and contain only alphanumeric characters.\n"
+    image:
+        default: 'Ubuntu 14.04 LTS (Trusty Tahr) (PV)'
+        label: 'Operating System'
+        type: string
+        description: "Server image used for all servers that are created as a part of this\ndeployment.\n"
+        constraints:
+            -
+                description: 'Must be a supported operating system.'
+                allowed_values:
+                    - 'Ubuntu 14.04 LTS (Trusty Tahr) (PV)'
+                    - 'Ubuntu 14.04 LTS (Trusty Tahr) (PVHVM)'
+    flavor:
+        default: '1 GB General Purpose v1'
+        label: 'Server Size'
+        type: string
+        description: "Rackspace Cloud Server flavor to use. The size is based on the amount of\nRAM for the provisioned server.\n"
+        constraints:
+            -
+                description: "Must be a valid Rackspace Cloud Server flavor for the region you have\nselected to deploy into.\n"
+                allowed_values:
+                    - '1 GB General Purpose v1'
+outputs:
+    private_key:
+        description: 'SSH Private Key'
+        value:
+            get_attr:
+                - ssh_key
+                - private_key
+    server_ip:
+        description: 'Server IP'
+        value:
+            get_attr:
+                - newrelic_server
+                - accessIPv4
+resources:
+    newrelic_server:
+        type: 'Rackspace::Cloud::Server'
+        properties:
+            key_name:
+                get_resource: ssh_key
+            flavor:
+                get_param: flavor
+            name:
+                get_param: server_hostname
+            image:
+                get_param: image
+            metadata:
+                rax-heat:
+                    get_param: 'OS::stack_id'
+    ssh_key:
+        type: 'OS::Nova::KeyPair'
+        properties:
+            name:
+                get_param: 'OS::stack_id'
+            save_private_key: true
+    user-data:
+        str_replace:
+            template:  |
+                #!/bin/bash
+                apt-get update
+                apt-get install docker.io git apache-utils -y
+                git clone --recursive https://github.com/ostercloud/node-docker.git
+                cd node-docker; docker build -t newrelic-lab .
+                docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newreic-lab
+            params:
+                $NR_KEY: {get_param: new_relic_license_key}
