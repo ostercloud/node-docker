@@ -49,6 +49,15 @@ parameters:
                 description: "Must be a valid Rackspace Cloud Server flavor for the region you have\nselected to deploy into.\n"
                 allowed_values:
                     - '1 GB General Purpose v1'
+    new_relic_license_key:
+        label: 'NewRelic License Key'
+        type: string
+        description: 'License Key'
+        constraints:
+            -
+                length:
+                    max: 64
+                    min: 1
 outputs:
     private_key:
         description: 'SSH Private Key'
@@ -77,20 +86,20 @@ resources:
             metadata:
                 rax-heat:
                     get_param: 'OS::stack_id'
+            user_data:
+                str_replace:
+                    template:  |
+                        #!/bin/bash
+                        apt-get update
+                        apt-get install docker.io git apache2-utils -y
+                        git clone --recursive https://github.com/ostercloud/node-docker.git
+                        cd node-docker; docker build -t newrelic-lab .
+                        docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newreic-lab
+                    params:
+                        $NR_KEY: {get_param: new_relic_license_key}
     ssh_key:
         type: 'OS::Nova::KeyPair'
         properties:
             name:
                 get_param: 'OS::stack_id'
             save_private_key: true
-    user-data:
-        str_replace:
-            template:  |
-                #!/bin/bash
-                apt-get update
-                apt-get install docker.io git apache-utils -y
-                git clone --recursive https://github.com/ostercloud/node-docker.git
-                cd node-docker; docker build -t newrelic-lab .
-                docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newreic-lab
-            params:
-                $NR_KEY: {get_param: new_relic_license_key}
