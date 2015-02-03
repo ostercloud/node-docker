@@ -58,6 +58,19 @@ parameters:
                 length:
                     max: 64
                     min: 1
+outputs:
+    private_key:
+        description: 'SSH Private Key'
+        value:
+            get_attr:
+                - ssh_key
+                - private_key
+    server_ip:
+        description: 'Server IP'
+        value:
+            get_attr:
+                - newrelic_server
+                - accessIPv4
 resources:
     newrelic_server:
         type: 'Rackspace::Cloud::Server'
