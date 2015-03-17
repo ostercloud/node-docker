@@ -5,7 +5,7 @@ RUN     rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-
 # Install Node.js and npm
 RUN     yum install -y npm
 #Grab app code
-RUN git clone -b $BRANCH https://github.com/ostercloud/node-hello.git /src
+RUN git clone https://github.com/ostercloud/node-hello.git /src
 
 # Bundle app source
 COPY ./src /src
