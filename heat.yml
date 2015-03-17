@@ -85,7 +85,8 @@ resources:
                         apt-get update
                         apt-get install docker.io git apache2-utils -y
                         git clone --recursive https://github.com/ostercloud/node-docker.git
-                        cd node-docker; docker build -t newrelic-lab .
+                        cd node-docker/src; git clone https://github.com/ostercloud/node-hello.git; cd ../
+                        docker build -t newrelic-lab .
                         docker run -d -p 80:8080 -e NEW_RELIC_LICENSE_KEY=$NR_KEY newrelic-lab
                         at -m now + 1 minute < /node-docker/loadtest.sh
                     params:
